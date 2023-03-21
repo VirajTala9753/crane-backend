@@ -13,6 +13,10 @@ router.get('/channel', async (req, res) => {
   })
 })
 
+
+
+
+
 router.post('/channel', async (req, res, next) => {
   try {
     if (!req.body?.name) return next(new AppError('Enter a channel name', 400))

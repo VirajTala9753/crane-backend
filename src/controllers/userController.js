@@ -100,16 +100,27 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 
 exports.searchEmail = catchAsync(async (req, res) => {
   try {
-    console.log('req', req.query.key)
-    const email = req.query.key
-    console.log(email, 'demfo')
+    const { email, channelId } = req.query
 
-    const Searchemail = await User.find({ email: { $regex: email, $options: 'i' } }).select({ email: 1 })
-    console.log(Searchemail, 'huhf')
-    if (!email) {
+    const Searchemail = await User.find({ email: { $regex: email, $options: 'i' } })
+    if (!Searchemail.length) {
       return res.json({ msg: 'no match found', status: false })
     }
-    return res.json({ status: true, Searchemail })
+    // const Dataemail = await Channel.find({ email: { $regex: email, $options: 'i' } })
+
+    const channel = await Channel.findOne({ _id: ObjectId(channelId) })
+    console.log(channel)
+    console.log(typeof channel.participants[0], 'participant type')
+    const filterdUser = Searchemail.filter((user) => {
+      return !channel.participants.includes(ObjectId(user._id))
+    })
+    console.log('filteruser', filterdUser)
+    console.log('')
+
+    // if ((Dataemail = Searchemail)) {
+    //   return res.json({ msg: 'already use', status: false })
+    // }
+    return res.json({ status: true, filterdUser })
   } catch (error) {
     console.log(error, 'error')
     return res.json({ error: error })
@@ -120,17 +131,19 @@ exports.updateId = catchAsync(async (req, res) => {
   try {
     console.log('request body', req.body)
     const { selectedUserId, channelId } = req.body
+    console.log('selecctuser', selectedUserId)
+
+    if (!selectedUserId) {
+      return res.json({
+        msg: 'id is not selecte',
+        status: false,
+      })
+    }
     const updateid = await Channel.findByIdAndUpdate(
       { _id: channelId },
       { $push: { participants: ObjectId(selectedUserId) } }
     )
     console.log(updateid, 'updateid')
-    if (!updateid) {
-      return res.json({
-        msg: 'id is not update',
-        status: false,
-      })
-    }
     return res.json({ status: true })
   } catch (error) {
     console.log(error, 'error')
