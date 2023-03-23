@@ -12,7 +12,16 @@ const channelSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  participants: [ObjectId],
+  participants: [
+    {
+      _id: {
+        type: String,
+      },
+      userName: {
+        type: String,
+      },
+    },
+  ],
   isPublic: {
     type: Boolean,
   },

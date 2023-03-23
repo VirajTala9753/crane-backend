@@ -111,11 +111,12 @@ exports.searchEmail = catchAsync(async (req, res) => {
     const channel = await Channel.findOne({ _id: ObjectId(channelId) })
     console.log(channel)
     console.log(typeof channel.participants[0], 'participant type')
+    const parti = channel.participants.map((ele) => ele._id)
+
     const filterdUser = Searchemail.filter((user) => {
-      return !channel.participants.includes(ObjectId(user._id))
+      return !parti.includes(user._id)
     })
-    console.log('filteruser', filterdUser)
-    console.log('')
+    
 
     // if ((Dataemail = Searchemail)) {
     //   return res.json({ msg: 'already use', status: false })
@@ -130,8 +131,8 @@ exports.searchEmail = catchAsync(async (req, res) => {
 exports.updateId = catchAsync(async (req, res) => {
   try {
     console.log('request body', req.body)
-    const { selectedUserId, channelId } = req.body
-    console.log('selecctuser', selectedUserId)
+    const { selectedUserId, channelId, selectedUserName } = req.body
+    console.log('selecctusernnnaamme', selectedUserName)
 
     if (!selectedUserId) {
       return res.json({
@@ -141,7 +142,7 @@ exports.updateId = catchAsync(async (req, res) => {
     }
     const updateid = await Channel.findByIdAndUpdate(
       { _id: channelId },
-      { $push: { participants: ObjectId(selectedUserId) } }
+      { $push: { participants: [{ _id: ObjectId(selectedUserId), userName: selectedUserName }] } }
     )
     console.log(updateid, 'updateid')
     return res.json({ status: true })

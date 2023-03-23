@@ -13,16 +13,12 @@ router.get('/channel', async (req, res) => {
   })
 })
 
-
-
-
-
 router.post('/channel', async (req, res, next) => {
   try {
-    if (!req.body?.name) return next(new AppError('Enter a channel name', 400))
+    if (!req.body.name) return next(new AppError('Enter a channel name', 400))
 
 
-    const { name, description, isPublic, participant } = req.body
+    const { name, description, isPublic, participant ,userName } = req.body
 
     console.log(participant);
 
@@ -31,7 +27,7 @@ router.post('/channel', async (req, res, next) => {
     if (!newChannel) return next(new AppError('channel not created, Try again!', 400))
     const { _id } = newChannel
 
-    await Channel.findByIdAndUpdate({ _id }, { $push: { participants: ObjectId(participant) } })
+    await Channel.findByIdAndUpdate({ _id }, { $push: { participants: [{ _id: ObjectId(participant), userName: userName }] } })
 
     res.status(201).send({
       success: 'channel created',
